@@ -1,0 +1,23 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  font-family: system-ui, "Segoe UI", Roboto, sans-serif;
+  color: #1c1917;
+  background: #f3efe6;
+}
+
+.app {
+  min-height: 100%;
+  padding: 32px;
+}
