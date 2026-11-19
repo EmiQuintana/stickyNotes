@@ -1,5 +1,5 @@
 import type { PointerEvent as ReactPointerEvent } from 'react'
-import type { Note as NoteModel } from './notes.ts'
+import type { Note as NoteModel } from '../model/notes.ts'
 
 type NoteStyle = React.CSSProperties & {
   '--rotation': string

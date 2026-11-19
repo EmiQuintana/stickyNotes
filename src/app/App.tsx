@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
-import NoteCard from './Note.tsx'
+import { fetchNotes, persistNotes } from '../api/client.ts'
+import NoteCard from '../components/Note.tsx'
 import {
   DEFAULT_NOTE_HEIGHT,
   DEFAULT_NOTE_WIDTH,
@@ -12,15 +13,13 @@ import {
   createNote,
   draftRect,
   findFreeSpot,
-  loadNotes,
   rectsOverlap,
   resizeNote,
-  saveNotes,
   type Bounds,
   type Note,
   type NoteColor,
   type Rect,
-} from './notes.ts'
+} from '../model/notes.ts'
 
 const REMOVE_MS = 180
 
@@ -82,7 +81,7 @@ function focusNote(id: string) {
 }
 
 function App() {
-  const [notes, setNotes] = useState<Note[]>(() => loadNotes())
+  const [notes, setNotes] = useState<Note[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [color, setColor] = useState<NoteColor>('yellow')
   const [draft, setDraft] = useState<Rect | null>(null)
@@ -96,6 +95,7 @@ function App() {
   const gesture = useRef<Gesture | null>(null)
   const removingRef = useRef(new Set<string>())
   const removeNoteRef = useRef<(id: string) => void>(() => {})
+  const loadedRef = useRef(false)
 
   function canvasBounds(): Bounds | null {
     const canvas = canvasRef.current
@@ -147,7 +147,21 @@ function App() {
   })
 
   useEffect(() => {
-    saveNotes(notes)
+    let cancelled = false
+    void fetchNotes().then((stored) => {
+      if (cancelled) return
+      const bounds = canvasBounds()
+      setNotes(bounds ? clampNotes(stored, bounds) : stored)
+      loadedRef.current = true
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!loadedRef.current) return
+    void persistNotes(notes)
   }, [notes])
 
   useEffect(() => {
@@ -373,7 +387,6 @@ function App() {
     <main className="app">
       <header className="topbar">
         <div className="brand">
-          <span className="mark" aria-hidden="true" />
           <h1>Sticky notes</h1>
         </div>
         <div className="toolbar">
@@ -393,7 +406,9 @@ function App() {
           </div>
           <span className="toolbar__rule" aria-hidden="true" />
           <button type="button" className="new-note" aria-label="New note" onClick={createDefaultNote}>
-            <span className="mark" aria-hidden="true" />
+            <svg className="new-note__icon" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M8 2.5v11M2.5 8h11" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
             New note
           </button>
         </div>

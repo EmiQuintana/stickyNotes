@@ -22,6 +22,8 @@ npm run dev
 
 Vite prints a local URL. Open it in a desktop browser.
 
+Vite is the build tool. In development it serves the app and recompiles TypeScript and JSX when a file changes. The browser never runs `.tsx` directly. The production build is below.
+
 ## Production build
 
 ```bash
@@ -40,11 +42,25 @@ npm run preview
 | `npm run preview` | Serve the production build locally |
 | `npm run lint` | Run Oxlint |
 
+## Layout
+
+```
+src/
+  main.tsx                 entry
+  app/App.tsx              screen and pointer gestures
+  app/styles.css           all styles
+  components/Note.tsx      one note
+  model/notes.ts           note rules, no React
+  api/client.ts            async persistence mock
+```
+
+There is one folder per role. The screen stays in `app/` because the product is a single view.
+
 ## Design decisions
 
 The board is one React screen. Notes live in a single array, `{ id, x, y, w, h, color, text, rotation }`, and the UI renders from that array. Pointer handlers update the array; they do not keep a second copy of the layout.
 
-`src/notes.ts` holds the pure rules: create, clamp, resize, overlap, a free spot for the New note button, and `localStorage`. `src/App.tsx` owns the pointer gestures. `src/Note.tsx` is one note.
+`model/notes.ts` holds the pure rules: create, clamp, resize, overlap, and a free spot for the New note button. `app/App.tsx` owns the pointer gestures. `components/Note.tsx` is one note. `api/client.ts` is an asynchronous mock of a REST API. It waits briefly, then reads and writes `localStorage`, so a reload still restores the board. Overlapping saves keep only the latest request.
 
 Creating, moving, and resizing use Pointer Events and `setPointerCapture`, so the gesture continues when the cursor leaves the note. The drag tilt, scale, and shadow are CSS only. The stored rotation stays the small random angle from creation.
 
