@@ -56,6 +56,16 @@ src/
 
 There is one folder per role. The screen stays in `app/` because the product is a single view.
 
+## Assumptions
+
+- Desktop and mouse only. Touch is out of scope.
+- The board is aimed at 1024x768 and fills the visible window, so the trash stays on screen when the window is shorter.
+- All four interactions are included, plus the optional ones: text editing, stacking order, colors, and persistence.
+- There is no real backend. `api/client.ts` is an asynchronous mock. It stores notes in `localStorage`.
+- A drawn note uses the drag rectangle. Drags smaller than 40px on either side are ignored. The New note button creates a 200x160 note. Resize cannot go below 100x80.
+- The trash hit test uses the note's rectangle. The tilt while dragging is visual only.
+- A note comes to the front when a drag starts.
+
 ## Design decisions
 
 The board is one React screen. Notes live in a single array, `{ id, x, y, w, h, color, text, rotation }`, and the UI renders from that array. Pointer handlers update the array; they do not keep a second copy of the layout.
